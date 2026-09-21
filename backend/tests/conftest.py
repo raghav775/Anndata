@@ -11,11 +11,6 @@ from sqlalchemy.pool import StaticPool
 from app.core.database import Base, get_db
 from app.core.security import hash_password, pwd_context
 from app.main import app
-
-# bcrypt's cost factor is intentionally slow; the default (12 rounds) makes
-# the hundreds of demo-user hashes created across this suite take minutes.
-# Lowering it here only affects this test process, never production.
-pwd_context.update(bcrypt__rounds=4)
 from app.models.commodity import Commodity, StorageFacility
 from app.models.enums import BuyerType, UserRole, VerificationStatus
 from app.models.user import (
@@ -27,6 +22,11 @@ from app.models.user import (
     TransporterProfile,
     User,
 )
+
+# bcrypt's cost factor is intentionally slow; the default (12 rounds) makes
+# the hundreds of demo-user hashes created across this suite take minutes.
+# Lowering it here only affects this test process, never production.
+pwd_context.update(bcrypt__rounds=4)
 
 TEST_PASSWORD = "Test@1234"
 
