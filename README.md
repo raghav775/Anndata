@@ -11,8 +11,17 @@ AnnData helps small onion farmers aggregate produce through their FPO (Farmer Pr
 
 ---
 
+## Live demo
+
+**[annadata-onion-pilot.vercel.app](https://annadata-onion-pilot.vercel.app)** · API: [annadata-onion-pilot-api.onrender.com](https://annadata-onion-pilot-api.onrender.com/api/health)
+
+The backend is a free-tier instance that spins down after 15 minutes idle and reseeds fresh demo data on its next request — the first load after a quiet period takes a few extra seconds. See [Demo accounts](#demo-accounts) below, or [`DEPLOYMENT.md`](DEPLOYMENT.md) for how this is deployed.
+
+---
+
 ## Table of contents
 
+- [Live demo](#live-demo)
 - [Problem & solution](#problem--solution)
 - [Core workflow](#core-workflow)
 - [Demo transaction](#demo-transaction)
@@ -239,7 +248,7 @@ The seed also creates a second FPO and a wider farmer/buyer roster (18 farmers, 
 - **Offline-first is a queue architecture, not a shipped feature** — see the codebase's TanStack Query setup as the natural extension point; a full IndexedDB queue with sync-status UI wasn't built in this pass.
 - **Repository-pattern-free backend** — routers query SQLAlchemy directly rather than through a repository abstraction, a scope trade-off (see `ARCHITECTURE.md`).
 - **Chromium-only E2E** — Firefox/WebKit Playwright projects aren't configured.
-- **No production deployment** — Docker/CI deploy steps aren't included; see `DEPLOYMENT.md` for what a real deployment would need.
+- **Free-tier hosting, not hardened production infra** — the [live demo](#live-demo) runs on Render's free web service (SQLite, resets on cold start) and Vercel's free static hosting; no Docker/CI deploy pipeline, Postgres, persistent disk or autoscaling is set up. See `DEPLOYMENT.md` for what a harder deployment would need.
 
 ## Future roadmap
 

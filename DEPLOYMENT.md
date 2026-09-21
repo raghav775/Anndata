@@ -1,5 +1,18 @@
 # Deployment
 
+## Live demo
+
+- **Frontend:** https://annadata-onion-pilot.vercel.app (Vercel, static build, free tier)
+- **Backend API:** https://annadata-onion-pilot-api.onrender.com (Render, free web service)
+
+Both redeploy automatically on every push to `main` (Vercel via its GitHub integration; Render via the `render.yaml` Blueprint below). The backend's free-tier instance spins down after 15 minutes of inactivity and reseeds fresh demo data on its next cold start (`scripts/seed.py` runs before `uvicorn` on every boot) — so the first request after a quiet period takes a few extra seconds, and any demo actions from a previous visitor are gone, by design. See [Demo accounts](README.md#demo-accounts) in the README for logins.
+
+### Setting this up from scratch
+
+1. **Frontend (Vercel)** — from `frontend/`: `vercel link`, then `vercel env add VITE_API_BASE_URL production` (set to `<backend-url>/api`), then `vercel deploy --prod`. If deployment protection (SSO) is on by default for your team, disable it for a public demo: `vercel project protection disable <project> --sso`.
+2. **Backend (Render)** — push `render.yaml` (repo root) to `main`, then in the Render dashboard: **New → Blueprint**, pick this repo, and apply. Render reads `render.yaml`, provisions the web service on the free plan, and auto-generates `JWT_SECRET_KEY`. Update the `CORS_ORIGINS` env var on the service if your Vercel URL differs from what's in `render.yaml`.
+3. If either URL changes (e.g. a name collision forces a different subdomain), update the other side: `CORS_ORIGINS` on Render, `VITE_API_BASE_URL` on Vercel (then redeploy the frontend so the new value is baked into the build — Vite reads it at build time, not runtime).
+
 ## Local demo (the supported, verified path)
 
 Everything in this project runs locally with zero paid services. See the README's "Local installation" for the full step-by-step. Summary:
