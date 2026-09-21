@@ -166,6 +166,28 @@ def get_lot(
     return _lot_out(lot)
 
 
+@router.get("/{lot_id}/screening", response_model=ScreeningOut)
+def get_screening(
+    lot_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+) -> PreliminaryScreening:
+    lot = db.get(Lot, lot_id)
+    if lot is None or lot.preliminary_screening is None:
+        raise NotFoundError("No preliminary screening exists yet for this lot")
+    _assert_can_view_lot(db, user, lot)
+    return lot.preliminary_screening
+
+
+@router.get("/{lot_id}/assessment", response_model=QualityAssessmentOut)
+def get_assessment(
+    lot_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+) -> QualityAssessment:
+    lot = db.get(Lot, lot_id)
+    if lot is None or lot.quality_assessment is None:
+        raise NotFoundError("No quality assessment exists yet for this lot")
+    _assert_can_view_lot(db, user, lot)
+    return lot.quality_assessment
+
+
 @router.post("/{lot_id}/collect", response_model=LotOut)
 def mark_collected(
     lot_id: int,

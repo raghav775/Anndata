@@ -23,6 +23,19 @@ def _settlement_out(settlement: Settlement) -> SettlementOut:
     return out
 
 
+@router.get("", response_model=list[SettlementOut])
+def list_settlements(
+    db: Session = Depends(get_db),
+    user: User = Depends(require_roles(UserRole.FPO_AGENT, UserRole.ADMIN)),
+) -> list[SettlementOut]:
+    query = db.query(Settlement)
+    if user.role == UserRole.FPO_AGENT:
+        query = query.join(Settlement.lot).filter(
+            Lot.fpo_id == user.fpo_agent_profile.fpo_id
+        )
+    return [_settlement_out(s) for s in query.order_by(Settlement.id.desc()).all()]
+
+
 @router.post("/{lot_id}/initiate", response_model=SettlementOut)
 def initiate_settlement(
     lot_id: int,

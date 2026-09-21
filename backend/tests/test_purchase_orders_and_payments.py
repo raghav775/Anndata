@@ -165,6 +165,26 @@ def test_duplicate_settlement_is_rejected(client, seed_base):
     assert resp.status_code == 422
 
 
+def test_list_settlements_scoped_to_fpo(client, seed_base):
+    lot_id, po, payment = _po_and_payment(client, seed_base)
+    buyer_headers = auth_headers(client, "buyer@test.demo")
+    client.post(f"/api/payments/{payment['id']}/initiate", headers=buyer_headers)
+    client.post(
+        f"/api/payments/{payment['id']}/pay",
+        headers=buyer_headers,
+        json={"amount": payment["amount_due"]},
+    )
+    fpo_headers = auth_headers(client, "fpo@test.demo")
+    client.post(f"/api/settlements/{lot_id}/initiate", headers=fpo_headers)
+
+    resp = client.get("/api/settlements", headers=fpo_headers)
+    assert resp.status_code == 200
+    assert len(resp.json()) == 1
+
+    farmer_headers = auth_headers(client, "farmer@test.demo")
+    assert client.get("/api/settlements", headers=farmer_headers).status_code == 403
+
+
 def test_farmer_sees_only_their_own_settlement_item(client, seed_base):
     lot_id, po, payment = _po_and_payment(client, seed_base)
     buyer_headers = auth_headers(client, "buyer@test.demo")
