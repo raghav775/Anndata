@@ -396,3 +396,34 @@ def open_for_offers(
     db.commit()
     db.refresh(lot)
     return _lot_out(lot)
+
+
+@router.post("/{lot_id}/close", response_model=LotOut)
+def close_lot(
+    lot_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    agent: User = Depends(require_roles(UserRole.FPO_AGENT, UserRole.ADMIN)),
+) -> LotOut:
+    """Archives a fully settled lot. Purely administrative — no financial
+    effect, just marks the record as closed out."""
+    lot = db.get(Lot, lot_id)
+    if lot is None:
+        raise NotFoundError("Lot not found")
+    assert_transition_allowed(lot.status, LotStatus.CLOSED)
+    old_status = lot.status
+    lot.status = LotStatus.CLOSED
+
+    record_audit(
+        db,
+        actor=agent,
+        action="LOT_CLOSED",
+        entity_type="Lot",
+        entity_id=lot.id,
+        old_value={"status": old_status.value},
+        new_value={"status": lot.status.value},
+        ip_address=get_client_ip(request),
+    )
+    db.commit()
+    db.refresh(lot)
+    return _lot_out(lot)

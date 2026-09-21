@@ -126,3 +126,17 @@ def test_buyer_cannot_see_a_draft_lot(client, seed_base):
     headers = auth_headers(client, "buyer@test.demo")
     resp = client.get(f"/api/lots/{lot_id}", headers=headers)
     assert resp.status_code == 403
+
+
+def test_cannot_close_a_lot_before_it_is_settled(client, seed_base):
+    lot_id = create_lot(client, seed_base)
+    headers = auth_headers(client, "fpo@test.demo")
+    resp = client.post(f"/api/lots/{lot_id}/close", headers=headers)
+    assert resp.status_code == 409
+
+
+def test_farmer_cannot_close_a_lot(client, seed_base):
+    lot_id = create_lot(client, seed_base)
+    headers = auth_headers(client, "farmer@test.demo")
+    resp = client.post(f"/api/lots/{lot_id}/close", headers=headers)
+    assert resp.status_code == 403
