@@ -51,3 +51,4 @@ npm-debug.log*
 # --- Misc ---
 .cache/
 dist/
+.claude/
