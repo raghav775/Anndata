@@ -705,7 +705,7 @@ def seed() -> None:
         _accept_offer(db, lot, offer_b, [offer_a], fpo_user)
         po, payment = _create_po(db, lot, offer_b, fpo, fpo_user, delivery_location="Maharashtra Retail Procurement Network Warehouse, Nashik MIDC", quantity_kg=1980.0, po_status=POStatus.FULFILLED)
 
-        shipment = _assign_shipment(db, lot, po, transporter, transporter_user, vehicle_number="MH-15-BT-4521", vehicle_type="Open truck, 5 tonne", capacity_kg=5000, driver_contact="9990000499", pickup_point="Niphad Collection Centre", status=ShipmentStatus.DELIVERED, hours_ago=24)
+        _assign_shipment(db, lot, po, transporter, transporter_user, vehicle_number="MH-15-BT-4521", vehicle_type="Open truck, 5 tonne", capacity_kg=5000, driver_contact="9990000499", pickup_point="Niphad Collection Centre", status=ShipmentStatus.DELIVERED, hours_ago=24)
 
         _confirm_delivery(db, lot, po, payment, admin_user, delivered_grade="B")
         _initiate_payment(db, payment, buyer_users["Maharashtra Retail Procurement Network"], days_ago=1)
@@ -865,7 +865,7 @@ def seed() -> None:
         _confirm_delivery(db, lot15, po15, payment15, admin_user, delivered_grade="B")
         _initiate_payment(db, payment15, buyer_users["Nashik Food Processing Unit"], days_ago=2)
         _pay(db, payment15, buyer_users["Nashik Food Processing Unit"], payment15.amount_due)
-        settlement15 = _settle(db, lot15, payment15, [(f1["Lata Wagh"], 340.0), (f1["Dilip Chavan"], 610.0)], fpo_user)
+        _settle(db, lot15, payment15, [(f1["Lata Wagh"], 340.0), (f1["Dilip Chavan"], 610.0)], fpo_user)
         dispute15 = _raise_dispute(db, lot15, po15, buyer_users["Nashik Food Processing Unit"], "Roughly one-fifth of the delivered bags were under-weight compared to the manifest; requesting re-weighment and a price adjustment.", status=DisputeStatus.UNDER_REVIEW)
         db.add(DisputeEvidence(dispute_id=dispute15.id, evidence_type="NOTE", description="Weighbridge slip at buyer warehouse shows 6% shortfall versus the purchase order quantity.", uploaded_by_user_id=buyer_users["Nashik Food Processing Unit"].id))
         dispute15.proposed_resolution = "Requesting a price adjustment proportional to the measured shortfall, pending FPO review of the weighbridge evidence against the original assayer record."
@@ -910,7 +910,7 @@ def seed() -> None:
         print("  assayer      assayer2@annadata.demo")
         print("  transporter  transporter2@annadata.demo")
         print("  + 15 more farmer accounts (<firstname>.<lastname>@annadata.demo)")
-        print(f"\nTotal: 2 FPOs · 18 farmers · 6 buyers · 2 assayers · 2 transporters · 3 storage facilities · 16 lots")
+        print("\nTotal: 2 FPOs · 18 farmers · 6 buyers · 2 assayers · 2 transporters · 3 storage facilities · 16 lots")
     finally:
         db.close()
 
