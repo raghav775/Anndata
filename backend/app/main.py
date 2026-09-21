@@ -57,6 +57,12 @@ app = FastAPI(
 
 register_error_handlers(app)
 
+# Middleware added later wraps outer (Starlette applies the last-added
+# middleware first). CORS must be outermost so its headers are attached even
+# to responses short-circuited by an inner middleware (e.g. a 429 from the
+# rate limiter) — otherwise the browser reports those as a CORS network
+# error instead of surfacing the actual status/message.
+app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -64,7 +70,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(RateLimitMiddleware)
 
 os.makedirs(settings.local_storage_path, exist_ok=True)
 app.mount(
