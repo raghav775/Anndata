@@ -1,0 +1,121 @@
+"""Shared enumerations used across models, schemas and services."""
+
+import enum
+
+
+class UserRole(str, enum.Enum):
+    FARMER = "FARMER"
+    FPO_AGENT = "FPO_AGENT"
+    BUYER = "BUYER"
+    ASSAYER = "ASSAYER"
+    TRANSPORTER = "TRANSPORTER"
+    ADMIN = "ADMIN"
+
+
+class LotStatus(str, enum.Enum):
+    DRAFT = "DRAFT"
+    COLLECTED = "COLLECTED"
+    UNDER_ASSESSMENT = "UNDER_ASSESSMENT"
+    ASSESSED = "ASSESSED"
+    OPEN_FOR_OFFERS = "OPEN_FOR_OFFERS"
+    OFFER_ACCEPTED = "OFFER_ACCEPTED"
+    PURCHASE_ORDER_CREATED = "PURCHASE_ORDER_CREATED"
+    DISPATCHED = "DISPATCHED"
+    DELIVERED = "DELIVERED"
+    SETTLED = "SETTLED"
+    DISPUTED = "DISPUTED"
+    CLOSED = "CLOSED"
+
+
+class Grade(str, enum.Enum):
+    A = "A"
+    B = "B"
+    C = "C"
+    REJECTED = "REJECTED"
+
+
+class OfferType(str, enum.Enum):
+    INDICATIVE = "INDICATIVE"
+    NEGOTIABLE = "NEGOTIABLE"
+    PURCHASE_ORDER = "PURCHASE_ORDER"
+    COMPLETED = "COMPLETED"
+
+
+class OfferStatus(str, enum.Enum):
+    ACTIVE = "ACTIVE"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
+    EXPIRED = "EXPIRED"
+    WITHDRAWN = "WITHDRAWN"
+
+
+class POStatus(str, enum.Enum):
+    ISSUED = "ISSUED"
+    ACKNOWLEDGED = "ACKNOWLEDGED"
+    FULFILLED = "FULFILLED"
+    CANCELLED = "CANCELLED"
+
+
+class ShipmentStatus(str, enum.Enum):
+    ASSIGNED = "ASSIGNED"
+    PICKUP_SCHEDULED = "PICKUP_SCHEDULED"
+    PICKED_UP = "PICKED_UP"
+    IN_TRANSIT = "IN_TRANSIT"
+    DELIVERED = "DELIVERED"
+    DELAYED = "DELAYED"
+    INCIDENT = "INCIDENT"
+
+
+class StorageBookingStatus(str, enum.Enum):
+    BOOKED = "BOOKED"
+    ACTIVE = "ACTIVE"
+    RELEASED = "RELEASED"
+    CANCELLED = "CANCELLED"
+
+
+class PaymentStatus(str, enum.Enum):
+    PAYMENT_PENDING = "PAYMENT_PENDING"
+    ADVANCE_RECEIVED = "ADVANCE_RECEIVED"
+    DISPATCHED = "DISPATCHED"
+    DELIVERED = "DELIVERED"
+    PAYMENT_INITIATED = "PAYMENT_INITIATED"
+    PAYMENT_COMPLETED = "PAYMENT_COMPLETED"
+    PARTIALLY_PAID = "PARTIALLY_PAID"
+    OVERDUE = "OVERDUE"
+    DISPUTED = "DISPUTED"
+
+
+class SettlementStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    PARTIAL = "PARTIAL"
+    COMPLETED = "COMPLETED"
+    DISPUTED = "DISPUTED"
+
+
+class DisputeStatus(str, enum.Enum):
+    OPEN = "OPEN"
+    UNDER_REVIEW = "UNDER_REVIEW"
+    EVIDENCE_REQUESTED = "EVIDENCE_REQUESTED"
+    RESOLVED = "RESOLVED"
+    REJECTED = "REJECTED"
+    ESCALATED = "ESCALATED"
+
+
+class SensorStatus(str, enum.Enum):
+    NORMAL = "NORMAL"
+    WARNING = "WARNING"
+    ALERT = "ALERT"
+
+
+class VerificationStatus(str, enum.Enum):
+    UNVERIFIED = "UNVERIFIED"
+    PENDING = "PENDING"
+    VERIFIED = "VERIFIED"
+    SUSPENDED = "SUSPENDED"
+
+
+class BuyerType(str, enum.Enum):
+    PROCESSOR = "PROCESSOR"
+    WHOLESALER = "WHOLESALER"
+    RETAILER = "RETAILER"
+    EXPORTER = "EXPORTER"
