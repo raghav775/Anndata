@@ -9,17 +9,26 @@ import type {
   FPODashboard,
   FPOOrganization,
   Lot,
-  Offer,
   OfferComparison,
   Payment,
   PurchaseOrder,
+  QualityAssessment,
+  Screening,
   Settlement,
   Shipment,
   StorageEvent,
   StorageFacility,
   TransporterProfile,
   Analytics,
+  User,
 } from "../types"
+
+export function useUsers() {
+  return useQuery({
+    queryKey: ["users"],
+    queryFn: async () => (await api.get<User[]>("/users")).data,
+  })
+}
 
 export function useLots(statusFilter?: string) {
   return useQuery({
@@ -33,6 +42,24 @@ export function useLot(lotId: number | undefined) {
     queryKey: ["lots", lotId],
     queryFn: async () => (await api.get<Lot>(`/lots/${lotId}`)).data,
     enabled: !!lotId,
+  })
+}
+
+export function useScreening(lotId: number | undefined) {
+  return useQuery({
+    queryKey: ["lots", lotId, "screening"],
+    queryFn: async () => (await api.get<Screening>(`/lots/${lotId}/screening`)).data,
+    enabled: !!lotId,
+    retry: false,
+  })
+}
+
+export function useAssessment(lotId: number | undefined) {
+  return useQuery({
+    queryKey: ["lots", lotId, "assessment"],
+    queryFn: async () => (await api.get<QualityAssessment>(`/lots/${lotId}/assessment`)).data,
+    enabled: !!lotId,
+    retry: false,
   })
 }
 
@@ -117,6 +144,18 @@ export function useStorageFacilities() {
   })
 }
 
+export function useStorageBookingsForLot(lotId: number | undefined) {
+  return useQuery({
+    queryKey: ["storage-bookings", lotId],
+    queryFn: async () =>
+      (await api.get<{ id: number; facility_id: number; booked_quantity_kg: number; status: string }[]>(
+        "/storage/bookings/list",
+        { params: { lot_id: lotId } },
+      )).data,
+    enabled: !!lotId,
+  })
+}
+
 export function useStorageEvents(facilityId: number | undefined) {
   return useQuery({
     queryKey: ["storage-events", facilityId],
@@ -129,6 +168,13 @@ export function usePayments() {
   return useQuery({
     queryKey: ["payments"],
     queryFn: async () => (await api.get<Payment[]>("/payments")).data,
+  })
+}
+
+export function useSettlements() {
+  return useQuery({
+    queryKey: ["settlements", "all"],
+    queryFn: async () => (await api.get<Settlement[]>("/settlements")).data,
   })
 }
 
@@ -181,7 +227,8 @@ export function useAuditLogs(filters: { entity_type?: string; entity_id?: string
 
 export function useInvalidate() {
   const queryClient = useQueryClient()
-  return (keys: string[][]) => keys.forEach((key) => void queryClient.invalidateQueries({ queryKey: key }))
+  return (keys: (string | number | undefined)[][]) =>
+    keys.forEach((key) => void queryClient.invalidateQueries({ queryKey: key }))
 }
 
 export { useMutation }

@@ -12,6 +12,17 @@ export function AppShell() {
   const { language, setLanguage, t } = useI18n()
   const [menuOpen, setMenuOpen] = useState(false)
 
+  function handleLogout() {
+    logout()
+    // A full hard navigation, not client-side routing: this guarantees a
+    // clean slate (no in-flight React state, no stale TanStack Query cache)
+    // and avoids a race with ProtectedRoute's own reactive redirect, which
+    // captures the current page as `from` — an imperative navigate() here
+    // was observed to lose that race and land the *next* login back on the
+    // page the previous session was viewing when it logged out.
+    window.location.href = "/login"
+  }
+
   if (!user) return null
   const items = NAV_ITEMS.filter((item) => item.roles.includes(user.role))
 
@@ -52,7 +63,7 @@ export function AppShell() {
           <p className="text-xs text-primary-200">{ROLE_LABEL[user.role]}</p>
           <button
             type="button"
-            onClick={logout}
+            onClick={handleLogout}
             className="focus-ring mt-3 w-full rounded-md bg-primary-800 px-3 py-1.5 text-sm text-white hover:bg-primary-700"
           >
             {t("logout")}
