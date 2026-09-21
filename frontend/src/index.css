@@ -1,51 +1,63 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Manrope", "Hind", "Hind Vadodara", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Manrope", "Hind", "Hind Vadodara", ui-sans-serif, system-ui, sans-serif;
 
-  /* Primary: deep agricultural green */
-  --color-primary-50: #f1f8f3;
-  --color-primary-100: #dcefe1;
-  --color-primary-200: #b9dfc4;
-  --color-primary-300: #8bc99e;
-  --color-primary-400: #5cae77;
-  --color-primary-500: #3b9159;
-  --color-primary-600: #2a7444;
-  --color-primary-700: #235d38;
-  --color-primary-800: #1e4a2f;
-  --color-primary-900: #193d28;
-  --color-primary-950: #0c2216;
+  /* Primary: deep pine green — richer / less generic than a bootstrap green */
+  --color-primary-50: #f2f8f4;
+  --color-primary-100: #e0f0e6;
+  --color-primary-200: #b9e0c8;
+  --color-primary-300: #8cc9a3;
+  --color-primary-400: #57a877;
+  --color-primary-500: #348158;
+  --color-primary-600: #246643;
+  --color-primary-700: #1d5236;
+  --color-primary-800: #18422c;
+  --color-primary-900: #143725;
+  --color-primary-950: #0a1f14;
 
-  /* Accent: harvest amber, used sparingly */
-  --color-accent-50: #fdf8ed;
-  --color-accent-100: #faedc9;
-  --color-accent-200: #f4d98d;
-  --color-accent-300: #edc158;
-  --color-accent-400: #e5a832;
-  --color-accent-500: #d68d1f;
-  --color-accent-600: #b46e18;
-  --color-accent-700: #905218;
-  --color-accent-800: #77421a;
-  --color-accent-900: #64381a;
+  /* Accent: harvest gold */
+  --color-accent-50: #fdf7ed;
+  --color-accent-100: #faebd0;
+  --color-accent-200: #f4d49f;
+  --color-accent-300: #ecb765;
+  --color-accent-400: #e29c3a;
+  --color-accent-500: #d3811f;
+  --color-accent-600: #b06416;
+  --color-accent-700: #8c4d17;
+  --color-accent-800: #723f18;
+  --color-accent-900: #5f3517;
 
-  /* Neutral: cool slate for text/surfaces */
-  --color-ink-50: #f6f7f8;
-  --color-ink-100: #eceef0;
-  --color-ink-200: #d5dade;
-  --color-ink-300: #b1bac1;
-  --color-ink-400: #86939e;
-  --color-ink-500: #677683;
-  --color-ink-600: #525f6c;
-  --color-ink-700: #444e59;
-  --color-ink-800: #3b434c;
-  --color-ink-900: #333a41;
-  --color-ink-950: #21262b;
+  /* Clay: secondary warm accent, used sparingly for highlights/variety */
+  --color-clay-300: #e7ab86;
+  --color-clay-400: #d98a63;
+  --color-clay-500: #c16a41;
+  --color-clay-600: #a5532f;
+  --color-clay-700: #854328;
+
+  /* Neutral: warm stone scale, paired with a cream page background */
+  --color-ink-50: #faf9f6;
+  --color-ink-100: #f3f1ea;
+  --color-ink-200: #e6e2d6;
+  --color-ink-300: #cec7b2;
+  --color-ink-400: #a89f88;
+  --color-ink-500: #85796a;
+  --color-ink-600: #675e52;
+  --color-ink-700: #4f483e;
+  --color-ink-800: #3a352d;
+  --color-ink-900: #2a2620;
+  --color-ink-950: #18160f;
 
   /* Status colors */
   --color-success-500: #2a9d5c;
-  --color-warning-500: #d68d1f;
+  --color-warning-500: #d3811f;
   --color-danger-500: #c4453e;
   --color-info-500: #2b7fb8;
+
+  --shadow-soft: 0 1px 2px 0 rgb(24 22 15 / 0.04), 0 1px 3px 0 rgb(24 22 15 / 0.06);
+  --shadow-lifted: 0 4px 12px -2px rgb(24 22 15 / 0.08), 0 2px 6px -2px rgb(24 22 15 / 0.06);
+  --shadow-panel: 0 12px 32px -8px rgb(24 22 15 / 0.14), 0 4px 12px -4px rgb(24 22 15 / 0.08);
 }
 
 :root {
@@ -57,6 +69,23 @@ body {
   color: var(--color-ink-900);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Script-aware font stacks: each language loads a typeface actually
+   designed for its script rather than falling back to a generic system
+   font, so switching language is also a small typographic upgrade. */
+html[data-lang="hi"] body,
+html[data-lang="mr"] body {
+  font-family: "Hind", "Manrope", ui-sans-serif, system-ui, sans-serif;
+}
+html[data-lang="gu"] body {
+  font-family: "Hind Vadodara", "Manrope", ui-sans-serif, system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
 }
 
 @layer utilities {
@@ -67,25 +96,54 @@ body {
     outline: 2px solid var(--color-primary-500);
     outline-offset: 2px;
   }
+
+  .bg-mesh {
+    background-image:
+      radial-gradient(ellipse 60% 50% at 15% 0%, color-mix(in srgb, var(--color-primary-200) 55%, transparent), transparent),
+      radial-gradient(ellipse 50% 40% at 100% 20%, color-mix(in srgb, var(--color-accent-200) 45%, transparent), transparent),
+      radial-gradient(ellipse 45% 35% at 50% 100%, color-mix(in srgb, var(--color-primary-100) 60%, transparent), transparent);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 @layer components {
   .input {
     width: 100%;
-    border-radius: 0.375rem;
-    border: 1px solid var(--color-ink-300);
-    padding: 0.5rem 0.75rem;
+    border-radius: 0.625rem;
+    border: 1px solid var(--color-ink-200);
+    padding: 0.55rem 0.8rem;
     font-size: 0.875rem;
     background-color: white;
     color: var(--color-ink-900);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .input:hover {
+    border-color: var(--color-ink-300);
   }
   .input:focus-visible {
-    outline: 2px solid var(--color-primary-500);
-    outline-offset: 1px;
+    outline: none;
+    border-color: var(--color-primary-400);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-400) 20%, transparent);
   }
   .input:disabled {
     background-color: var(--color-ink-50);
     color: var(--color-ink-400);
+  }
+
+  .card-surface {
+    background-color: white;
+    border-radius: 1rem;
+    border: 1px solid var(--color-ink-100);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .glass-panel {
+    background-color: color-mix(in srgb, white 10%, transparent);
+    backdrop-filter: blur(12px);
+    border: 1px solid color-mix(in srgb, white 15%, transparent);
   }
 }
 
@@ -102,4 +160,18 @@ body {
   background: linear-gradient(90deg, var(--color-ink-100) 25%, var(--color-ink-200) 37%, var(--color-ink-100) 63%);
   background-size: 800px 100%;
   animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.35s ease both;
 }

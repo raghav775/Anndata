@@ -1,17 +1,19 @@
+import { Gavel, Handshake, ShieldCheck, Sprout, Truck, Wallet } from "lucide-react"
 import { useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
+import { useI18n } from "../context/I18nContext"
 import { useToast } from "../context/ToastContext"
 import { getApiErrorMessage } from "../lib/api"
 import { Button } from "../components/ui/Button"
 
 const DEMO_ACCOUNTS = [
-  { role: "Farmer", email: "farmer@annadata.demo" },
-  { role: "FPO Agent", email: "fpo@annadata.demo" },
-  { role: "Buyer", email: "buyer@annadata.demo" },
-  { role: "Assayer", email: "assayer@annadata.demo" },
-  { role: "Transporter", email: "transporter@annadata.demo" },
-  { role: "Admin", email: "admin@annadata.demo" },
+  { roleKey: "role.FARMER", email: "farmer@annadata.demo", icon: Sprout },
+  { roleKey: "role.FPO_AGENT", email: "fpo@annadata.demo", icon: Handshake },
+  { roleKey: "role.BUYER", email: "buyer@annadata.demo", icon: Wallet },
+  { roleKey: "role.ASSAYER", email: "assayer@annadata.demo", icon: ShieldCheck },
+  { roleKey: "role.TRANSPORTER", email: "transporter@annadata.demo", icon: Truck },
+  { roleKey: "role.ADMIN", email: "admin@annadata.demo", icon: Gavel },
 ]
 
 export function LoginPage() {
@@ -19,6 +21,7 @@ export function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { showToast } = useToast()
+  const { t } = useI18n()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("Demo@123")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -34,7 +37,7 @@ export function LoginPage() {
       await login(email, password)
       navigate(from, { replace: true })
     } catch (err) {
-      const message = getApiErrorMessage(err, "Login failed. Check your email and password.")
+      const message = getApiErrorMessage(err, t("auth.loginFailed"))
       setError(message)
       showToast(message, "error")
     } finally {
@@ -43,33 +46,32 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ink-50 px-4 py-12">
+    <div className="bg-mesh flex min-h-screen items-center justify-center px-4 py-12">
       <div className="grid w-full max-w-4xl gap-8 md:grid-cols-2">
-        <div className="hidden flex-col justify-center rounded-xl bg-primary-900 p-8 text-white md:flex">
-          <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-400 font-bold text-primary-950">
-            A
+        <div className="hidden flex-col justify-center rounded-3xl bg-gradient-to-br from-primary-950 to-primary-800 p-9 text-white shadow-[var(--shadow-panel)] md:flex">
+          <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-400 to-accent-600 shadow-inner">
+            <Sprout className="h-6 w-6 text-primary-950" strokeWidth={2.5} />
           </div>
-          <h1 className="text-2xl font-semibold">AnnData</h1>
-          <p className="mt-2 text-primary-100">
-            FPO-assisted transparent agricultural market and settlement platform. Pilot: onion, Niphad-Lasalgaon,
-            Nashik.
-          </p>
-          <div className="mt-8 space-y-2 text-sm text-primary-100">
-            <p>· Compare net realizable price, not just gross price</p>
-            <p>· Physical quality assessment is authoritative</p>
-            <p>· Every farmer sees an itemized settlement</p>
-            <p>· Every important change is audit-logged</p>
+          <h1 className="font-display text-2xl font-bold">{t("common.appName")}</h1>
+          <p className="mt-2.5 leading-relaxed text-primary-100">{t("auth.heroBody")}</p>
+          <div className="mt-9 space-y-3 text-sm text-primary-100">
+            {["auth.heroBullet1", "auth.heroBullet2", "auth.heroBullet3", "auth.heroBullet4"].map((key) => (
+              <div key={key} className="flex items-start gap-2.5">
+                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-400" />
+                <span>{t(key)}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-ink-200">
-          <h2 className="text-xl font-semibold text-ink-900">Log in</h2>
-          <p className="mt-1 text-sm text-ink-500">Use a demo account below, or your own credentials.</p>
+        <div className="card-surface p-8 shadow-[var(--shadow-panel)]">
+          <h2 className="font-display text-xl font-bold text-ink-900">{t("auth.title")}</h2>
+          <p className="mt-1 text-sm text-ink-500">{t("auth.subtitle")}</p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-ink-700">
-                Email
+                {t("auth.email")}
               </label>
               <input
                 id="email"
@@ -77,13 +79,13 @@ export function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="focus-ring mt-1 w-full rounded-md border border-ink-300 px-3 py-2 text-sm"
+                className="input mt-1.5"
                 placeholder="you@annadata.demo"
               />
             </div>
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-ink-700">
-                Password
+                {t("auth.password")}
               </label>
               <input
                 id="password"
@@ -91,23 +93,21 @@ export function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="focus-ring mt-1 w-full rounded-md border border-ink-300 px-3 py-2 text-sm"
+                className="input mt-1.5"
               />
             </div>
             {error && (
-              <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+              <p role="alert" className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700 ring-1 ring-inset ring-red-100">
                 {error}
               </p>
             )}
             <Button type="submit" className="w-full" isLoading={isSubmitting}>
-              Log in
+              {t("auth.login")}
             </Button>
           </form>
 
-          <div className="mt-6 border-t border-ink-100 pt-4">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-400">
-              Demo accounts (password: Demo@123)
-            </p>
+          <div className="mt-7 border-t border-ink-100 pt-5">
+            <p className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-ink-400">{t("auth.demoAccountsLabel")}</p>
             <div className="grid grid-cols-2 gap-2">
               {DEMO_ACCOUNTS.map((acct) => (
                 <button
@@ -117,10 +117,13 @@ export function LoginPage() {
                     setEmail(acct.email)
                     setPassword("Demo@123")
                   }}
-                  className="focus-ring rounded-md border border-ink-200 px-2 py-1.5 text-left text-xs text-ink-600 hover:border-primary-300 hover:bg-primary-50"
+                  className="focus-ring flex items-center gap-2 rounded-lg border border-ink-200 px-2.5 py-2 text-left text-xs text-ink-600 transition-colors hover:border-primary-300 hover:bg-primary-50"
                 >
-                  <span className="block font-medium text-ink-800">{acct.role}</span>
-                  <span className="block truncate text-ink-400">{acct.email}</span>
+                  <acct.icon className="h-4 w-4 flex-shrink-0 text-primary-500" />
+                  <span className="min-w-0">
+                    <span className="block font-medium text-ink-800">{t(acct.roleKey)}</span>
+                    <span className="block truncate text-ink-400">{acct.email}</span>
+                  </span>
                 </button>
               ))}
             </div>

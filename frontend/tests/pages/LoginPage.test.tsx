@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { AuthProvider } from "../../src/context/AuthContext"
+import { I18nProvider } from "../../src/context/I18nContext"
 import { ToastProvider } from "../../src/context/ToastContext"
 import { LoginPage } from "../../src/pages/LoginPage"
 
@@ -19,14 +20,16 @@ import { api } from "../../src/lib/api"
 function renderLoginPage() {
   return render(
     <MemoryRouter initialEntries={["/login"]}>
-      <ToastProvider>
-        <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/app" element={<div>Dashboard landed</div>} />
-          </Routes>
-        </AuthProvider>
-      </ToastProvider>
+      <I18nProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/app" element={<div>Dashboard landed</div>} />
+            </Routes>
+          </AuthProvider>
+        </ToastProvider>
+      </I18nProvider>
     </MemoryRouter>,
   )
 }

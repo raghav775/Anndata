@@ -1,11 +1,13 @@
 import { useMutation } from "@tanstack/react-query"
+import { ArrowRight, Package, Plus, X } from "lucide-react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "../components/ui/Button"
 import { Card, CardHeader } from "../components/ui/Card"
-import { StatusBadge } from "../components/ui/Badge"
+import { Badge, StatusBadge } from "../components/ui/Badge"
 import { EmptyState, ErrorState, SkeletonCard } from "../components/ui/States"
 import { useAuth } from "../context/AuthContext"
+import { useI18n } from "../context/I18nContext"
 import { useToast } from "../context/ToastContext"
 import { useFarmers, useFPOs, useInvalidate, useLots } from "../hooks/api"
 import { api, getApiErrorMessage } from "../lib/api"
@@ -17,6 +19,7 @@ interface ContributorRow {
 
 export function LotsPage() {
   const { user } = useAuth()
+  const { t } = useI18n()
   const [showForm, setShowForm] = useState(false)
   const { data: lots, isLoading, isError } = useLots()
   const { data: farmers } = useFarmers()
@@ -46,7 +49,7 @@ export function LotsPage() {
       ).data,
     onSuccess: (lot) => {
       invalidate([["lots"]])
-      showToast(`Lot ${lot.lot_code} created (${lot.total_quantity_kg} kg)`, "success")
+      showToast(t("lots.createdToast", { code: lot.lot_code, qty: lot.total_quantity_kg }), "success")
       setShowForm(false)
       setContributors([{ farmer_id: "", quantity_kg: "" }])
     },
@@ -56,18 +59,23 @@ export function LotsPage() {
   const canCreate = user?.role === "FPO_AGENT" || user?.role === "ADMIN"
 
   return (
-    <div className="space-y-6">
+    <div className="animate-fade-in-up space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-ink-900">Lots</h1>
-          <p className="text-sm text-ink-500">Onion lots aggregated from farmer contributions.</p>
+          <h1 className="font-display text-2xl font-bold text-ink-900">{t("lots.title")}</h1>
+          <p className="text-sm text-ink-500">{t("lots.subtitle")}</p>
         </div>
-        {canCreate && <Button onClick={() => setShowForm((v) => !v)}>{showForm ? "Cancel" : "Create Lot"}</Button>}
+        {canCreate && (
+          <Button onClick={() => setShowForm((v) => !v)}>
+            {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+            {showForm ? t("common.cancel") : t("lots.createButton")}
+          </Button>
+        )}
       </div>
 
       {showForm && (
         <Card>
-          <CardHeader title="Aggregate a new lot" subtitle="Combine produce from one or more farmers into a single traceable lot" />
+          <CardHeader title={t("lots.formTitle")} subtitle={t("lots.formSubtitle")} />
           <form
             className="space-y-4"
             onSubmit={(e) => {
@@ -77,9 +85,9 @@ export function LotsPage() {
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block text-sm">
-                <span className="font-medium text-ink-700">FPO *</span>
-                <select required value={fpoId} onChange={(e) => setFpoId(e.target.value)} className="input mt-1">
-                  <option value="">Select FPO</option>
+                <span className="font-medium text-ink-700">{t("farmers.fpo")} *</span>
+                <select required value={fpoId} onChange={(e) => setFpoId(e.target.value)} className="input mt-1.5">
+                  <option value="">{t("farmers.selectFpo")}</option>
                   {(fpos ?? []).map((fpo) => (
                     <option key={fpo.id} value={fpo.id}>
                       {fpo.name}
@@ -88,21 +96,21 @@ export function LotsPage() {
                 </select>
               </label>
               <label className="block text-sm">
-                <span className="font-medium text-ink-700">Variety</span>
-                <input value={variety} onChange={(e) => setVariety(e.target.value)} className="input mt-1" />
+                <span className="font-medium text-ink-700">{t("lots.variety")}</span>
+                <input value={variety} onChange={(e) => setVariety(e.target.value)} className="input mt-1.5" />
               </label>
               <label className="block text-sm">
-                <span className="font-medium text-ink-700">Village of origin *</span>
-                <input required value={village} onChange={(e) => setVillage(e.target.value)} className="input mt-1" />
+                <span className="font-medium text-ink-700">{t("lots.villageOrigin")} *</span>
+                <input required value={village} onChange={(e) => setVillage(e.target.value)} className="input mt-1.5" />
               </label>
               <label className="block text-sm">
-                <span className="font-medium text-ink-700">Collection point *</span>
-                <input required value={collectionPoint} onChange={(e) => setCollectionPoint(e.target.value)} className="input mt-1" />
+                <span className="font-medium text-ink-700">{t("lots.collectionPoint")} *</span>
+                <input required value={collectionPoint} onChange={(e) => setCollectionPoint(e.target.value)} className="input mt-1.5" />
               </label>
             </div>
 
             <div>
-              <p className="mb-2 text-sm font-medium text-ink-700">Farmer contributors *</p>
+              <p className="mb-2 text-sm font-medium text-ink-700">{t("lots.contributors")} *</p>
               <div className="space-y-2">
                 {contributors.map((row, i) => (
                   <div key={i} className="flex gap-2">
@@ -115,7 +123,7 @@ export function LotsPage() {
                       }}
                       className="input"
                     >
-                      <option value="">Select farmer</option>
+                      <option value="">{t("lots.selectFarmer")}</option>
                       {(farmers ?? []).map((f) => (
                         <option key={f.id} value={f.id}>
                           {f.full_name} ({f.village})
@@ -126,7 +134,7 @@ export function LotsPage() {
                       type="number"
                       min="0.1"
                       step="0.1"
-                      placeholder="Quantity (kg)"
+                      placeholder={t("lots.quantityKg")}
                       value={row.quantity_kg}
                       onChange={(e) => {
                         const next = [...contributors]
@@ -142,7 +150,7 @@ export function LotsPage() {
                         size="sm"
                         onClick={() => setContributors(contributors.filter((_, idx) => idx !== i))}
                       >
-                        Remove
+                        {t("lots.remove")}
                       </Button>
                     )}
                   </div>
@@ -155,12 +163,12 @@ export function LotsPage() {
                 className="mt-2"
                 onClick={() => setContributors([...contributors, { farmer_id: "", quantity_kg: "" }])}
               >
-                + Add contributor
+                {t("lots.addContributor")}
               </Button>
             </div>
 
             <Button type="submit" isLoading={createLot.isPending}>
-              Create lot
+              {t("lots.submitButton")}
             </Button>
           </form>
         </Card>
@@ -168,34 +176,36 @@ export function LotsPage() {
 
       <Card>
         {isLoading && <SkeletonCard />}
-        {isError && <ErrorState message="Could not load lots." />}
-        {lots && lots.length === 0 && <EmptyState title="No lots yet" description="Create your first lot to begin the workflow." />}
+        {isError && <ErrorState message={t("lots.couldNotLoad")} />}
+        {lots && lots.length === 0 && <EmptyState icon={Package} title={t("lots.noLots")} description={t("lots.noLotsDesc")} />}
         {lots && lots.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-ink-100 text-xs uppercase text-ink-400">
-                  <th className="pb-2 pr-4">Lot</th>
-                  <th className="pb-2 pr-4">Origin</th>
-                  <th className="pb-2 pr-4">Quantity</th>
-                  <th className="pb-2 pr-4">Grade</th>
-                  <th className="pb-2 pr-4">Status</th>
+                <tr className="border-b border-ink-100 text-xs uppercase tracking-wide text-ink-400">
+                  <th className="pb-2 pr-4">{t("lots.colLot")}</th>
+                  <th className="pb-2 pr-4">{t("lots.colOrigin")}</th>
+                  <th className="pb-2 pr-4">{t("lots.colQuantity")}</th>
+                  <th className="pb-2 pr-4">{t("lots.colGrade")}</th>
+                  <th className="pb-2 pr-4">{t("lots.colStatus")}</th>
                   <th className="pb-2" />
                 </tr>
               </thead>
               <tbody>
                 {lots.map((lot) => (
-                  <tr key={lot.id} className="border-b border-ink-50">
-                    <td className="py-2.5 pr-4 font-medium text-ink-800">{lot.lot_code}</td>
-                    <td className="py-2.5 pr-4">{lot.village_origin}</td>
-                    <td className="py-2.5 pr-4">{lot.total_quantity_kg} kg</td>
-                    <td className="py-2.5 pr-4">{lot.final_grade ?? lot.preliminary_grade ?? "—"}</td>
-                    <td className="py-2.5 pr-4">
+                  <tr key={lot.id} className="border-b border-ink-50 last:border-0">
+                    <td className="py-3 pr-4 font-medium text-ink-800">{lot.lot_code}</td>
+                    <td className="py-3 pr-4">{lot.village_origin}</td>
+                    <td className="py-3 pr-4">{lot.total_quantity_kg} {t("common.kg")}</td>
+                    <td className="py-3 pr-4">
+                      {lot.final_grade ?? lot.preliminary_grade ? <Badge tone="info">{lot.final_grade ?? lot.preliminary_grade}</Badge> : "—"}
+                    </td>
+                    <td className="py-3 pr-4">
                       <StatusBadge status={lot.status} />
                     </td>
-                    <td className="py-2.5 text-right">
-                      <Link to={`/app/lots/${lot.id}`} className="text-sm font-medium text-primary-700 hover:underline">
-                        View
+                    <td className="py-3 text-right">
+                      <Link to={`/app/lots/${lot.id}`} className="inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:underline">
+                        {t("common.view")} <ArrowRight className="h-3.5 w-3.5" />
                       </Link>
                     </td>
                   </tr>
