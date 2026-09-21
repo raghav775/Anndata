@@ -1,6 +1,8 @@
+import { useEffect } from "react"
 import { Route, Routes } from "react-router-dom"
 import { AppShell } from "./components/layout/AppShell"
 import { ProtectedRoute } from "./components/layout/ProtectedRoute"
+import { api } from "./lib/api"
 import { AnalyticsPage } from "./pages/AnalyticsPage"
 import { AuditLogPage } from "./pages/AuditLogPage"
 import { DashboardRouter } from "./pages/dashboards/DashboardRouter"
@@ -22,6 +24,13 @@ import { StoragePage } from "./pages/StoragePage"
 import { UsersPage } from "./pages/UsersPage"
 
 function App() {
+  useEffect(() => {
+    // Best-effort warm-up: free-tier hosts (e.g. Render) spin down when
+    // idle, so ping the backend as early as page load rather than waiting
+    // for the user's first real request (typically login) to trigger it.
+    api.get("/health").catch(() => {})
+  }, [])
+
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />

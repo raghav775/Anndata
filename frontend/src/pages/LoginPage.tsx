@@ -1,3 +1,4 @@
+import axios from "axios"
 import { Gavel, Handshake, ShieldCheck, Sprout, Truck, Wallet } from "lucide-react"
 import { useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -6,6 +7,21 @@ import { useI18n } from "../context/I18nContext"
 import { useToast } from "../context/ToastContext"
 import { getApiErrorMessage } from "../lib/api"
 import { Button } from "../components/ui/Button"
+
+const WAKE_RETRY_ATTEMPTS = 4
+const WAKE_RETRY_DELAY_MS = 4000
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/** Free-tier hosts (e.g. Render) spin down when idle; the first request
+ * after that can take 30-50s to get a response, which surfaces to axios as
+ * a connection-level failure (no `response`) rather than a real API error.
+ * Retry quietly through that instead of showing "Network Error" once. */
+function isLikelyColdStart(err: unknown): boolean {
+  return axios.isAxiosError(err) && !err.response
+}
 
 const DEMO_ACCOUNTS = [
   { roleKey: "role.FARMER", email: "farmer@annadata.demo", icon: Sprout },
@@ -26,21 +42,33 @@ export function LoginPage() {
   const [password, setPassword] = useState("Demo@123")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isWakingUp, setIsWakingUp] = useState(false)
 
   const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/app"
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setIsWakingUp(false)
     setIsSubmitting(true)
     try {
-      await login(email, password)
-      navigate(from, { replace: true })
+      for (let attempt = 1; attempt <= WAKE_RETRY_ATTEMPTS; attempt++) {
+        try {
+          await login(email, password)
+          navigate(from, { replace: true })
+          return
+        } catch (err) {
+          if (!isLikelyColdStart(err) || attempt === WAKE_RETRY_ATTEMPTS) throw err
+          setIsWakingUp(true)
+          await sleep(WAKE_RETRY_DELAY_MS)
+        }
+      }
     } catch (err) {
       const message = getApiErrorMessage(err, t("auth.loginFailed"))
       setError(message)
       showToast(message, "error")
     } finally {
+      setIsWakingUp(false)
       setIsSubmitting(false)
     }
   }
@@ -96,7 +124,12 @@ export function LoginPage() {
                 className="input mt-1.5"
               />
             </div>
-            {error && (
+            {isWakingUp && (
+              <p role="status" className="rounded-lg bg-amber-50 px-3 py-2.5 text-sm text-amber-800 ring-1 ring-inset ring-amber-100">
+                {t("auth.wakingServer")}
+              </p>
+            )}
+            {error && !isWakingUp && (
               <p role="alert" className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700 ring-1 ring-inset ring-red-100">
                 {error}
               </p>

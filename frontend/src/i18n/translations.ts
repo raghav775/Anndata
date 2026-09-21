@@ -89,6 +89,7 @@ export const dict: Record<string, Entry> = {
   "auth.logout": { en: "Log out", hi: "लॉग आउट", mr: "लॉग आउट", gu: "લૉગ આઉટ" },
   "auth.demoAccountsLabel": { en: "Demo accounts (password: Demo@123)", hi: "डेमो खाते (पासवर्ड: Demo@123)", mr: "डेमो खाती (पासवर्ड: Demo@123)", gu: "ડેમો ખાતાઓ (પાસવર્ડ: Demo@123)" },
   "auth.loginFailed": { en: "Login failed. Check your email and password.", hi: "लॉगिन विफल। अपना ईमेल और पासवर्ड जांचें।", mr: "लॉगिन अयशस्वी. तुमचा ईमेल आणि पासवर्ड तपासा.", gu: "લૉગિન નિષ્ફળ. તમારો ઇમેઇલ અને પાસવર્ડ તપાસો." },
+  "auth.wakingServer": { en: "The demo server is waking up from idle (free hosting) — retrying automatically...", hi: "डेमो सर्वर निष्क्रियता से जाग रहा है (मुफ़्त होस्टिंग) — स्वतः पुनः प्रयास हो रहा है...", mr: "डेमो सर्व्हर निष्क्रियतेतून जागा होत आहे (मोफत होस्टिंग) — आपोआप पुन्हा प्रयत्न करत आहे...", gu: "ડેમો સર્વર નિષ્ક્રિયતામાંથી જાગી રહ્યું છે (મફત હોસ્ટિંગ) — આપમેળે ફરી પ્રયાસ થઈ રહ્યો છે..." },
 
   // --------------------------------------------------------------- landing
   "landing.navHow": { en: "How it works", hi: "यह कैसे काम करता है", mr: "हे कसे कार्य करते", gu: "તે કેવી રીતે કાર્ય કરે છે" },
