@@ -27,7 +27,7 @@ export function AppShell() {
   const items = NAV_ITEMS.filter((item) => item.roles.includes(user.role))
 
   return (
-    <div className="flex min-h-screen bg-ink-50">
+    <div className="flex min-h-screen overflow-x-hidden bg-ink-50">
       <aside
         className={clsx(
           "fixed inset-y-0 left-0 z-30 w-64 transform bg-primary-900 text-white transition-transform lg:static lg:translate-x-0",
