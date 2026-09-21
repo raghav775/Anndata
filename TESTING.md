@@ -14,7 +14,7 @@ pytest -k "settlement"                          # by keyword
 coverage run -m pytest && coverage report        # coverage
 ```
 
-97 tests across:
+103 tests across:
 
 | File | Covers |
 |---|---|
@@ -25,7 +25,7 @@ coverage run -m pytest && coverage report        # coverage
 | `test_screening_service.py` | Determinism, non-certification language, confidence bounds |
 | `test_auth.py` | Valid/invalid login, token refresh, RBAC denial/allow |
 | `test_farmers.py` | Onboarding, farmer data isolation (a farmer cannot see another farmer's data) |
-| `test_lots.py` | Creation, contributor aggregation, invalid quantities/duplicates, state transitions, role-scoped visibility |
+| `test_lots.py` | Creation, contributor aggregation, invalid quantities/duplicates, state transitions, role-scoped visibility, closing a settled lot (and rejecting a premature/unauthorized close) |
 | `test_quality_assessment.py` | Screening, finalized-assessment immutability, audited corrections |
 | `test_offers.py` | Offer validation, verified-buyer gating, **net-not-gross ranking**, acceptance |
 | `test_purchase_orders_and_payments.py` | PO creation/tolerance, payment state machine, over/duplicate-payment rejection, settlement generation |

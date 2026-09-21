@@ -54,7 +54,7 @@ Full detail: [`docs/workflow.md`](docs/workflow.md).
 
 ## Demo transaction
 
-The seeded demo carries one **2,000kg onion lot** through the entire workflow:
+The seeded demo's flagship lot (`LOT-2026-0001`) carries a **2,000kg onion lot** through the entire workflow:
 
 ```
 Kavita Shinde (420kg) + Ganesh Patil (680kg) + Rajendra Jadhav (900kg) = 2,000kg lot
@@ -67,7 +67,9 @@ Kavita Shinde (420kg) + Ganesh Patil (680kg) + Rajendra Jadhav (900kg) = 2,000kg
   → a dispute raised and resolved with a partial financial adjustment
 ```
 
-All three farmers, both buyers, and every organization in the demo are **synthetic** — see [Synthetic demo data disclaimer](#synthetic-demo-data-disclaimer). You can watch this exact sequence play out by logging in as each demo account and following [`docs/workflow.md`](docs/workflow.md), or drive a **brand-new** lot through the same sequence yourself from the FPO dashboard.
+That's one lot out of **16** seeded across two FPOs (Niphad and Yeola talukas, Nashik district). The rest deliberately span every remaining status and edge case — `DRAFT`, `COLLECTED`, `UNDER_ASSESSMENT`, `ASSESSED`, `OPEN_FOR_OFFERS` (with 2–3 competing offers each), `OFFER_ACCEPTED`, `PURCHASE_ORDER_CREATED`, `DISPATCHED` (including a storage `WARNING`/`ALERT` sensor sequence), `DELIVERED` with a partially-paid balance, two more `SETTLED` multi-farmer lots, a fresh **unresolved** `DISPUTED` lot (distinct from the flagship's already-resolved one), and a `CLOSED` lot priced down through the Grade C tolerance step — so every dashboard, list, and chart has substantial, realistic data rather than one example. Prices, villages, varieties and grading bands are grounded in public reference data researched for this pilot; see [`research/`](research/).
+
+All farmers, buyers, and organizations in the demo are **synthetic** — see [Synthetic demo data disclaimer](#synthetic-demo-data-disclaimer). You can watch the flagship sequence play out by logging in as each demo account and following [`docs/workflow.md`](docs/workflow.md), browse the other 15 lots for every other state, or drive a **brand-new** lot through the same sequence yourself from the FPO dashboard.
 
 ## Architecture
 
@@ -90,7 +92,7 @@ Full detail, including why CORS middleware ordering matters and how the net-pric
 **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4, React Router, TanStack Query, Recharts, Axios.
 **Backend:** Python 3.11, FastAPI, Pydantic v2, SQLAlchemy 2.0, Alembic, JWT (`python-jose`), bcrypt (`passlib`).
 **Database:** SQLite by default; PostgreSQL-portable with a `DATABASE_URL` change (no code changes).
-**Testing:** pytest (97 backend tests), Vitest + React Testing Library (frontend), Playwright (E2E).
+**Testing:** pytest (103 backend tests), Vitest + React Testing Library (14 frontend tests), Playwright (E2E).
 **Zero paid dependencies:** no external AI API, no payment gateway, no paid map provider, no paid auth provider — see [Environment variables](#environment-variables).
 
 ## Repository structure
@@ -187,10 +189,10 @@ See [`.env.example`](.env.example) for the full, documented list. **Nothing is r
 ## Testing
 
 ```bash
-# Backend — 97 tests
+# Backend — 103 tests
 cd backend && pytest
 
-# Frontend — 12 tests
+# Frontend — 14 tests
 cd frontend && npm run test -- --run
 
 # End-to-end (requires both dev servers running, or CI auto-starts them)
@@ -208,15 +210,24 @@ All passwords: **`Demo@123`**
 | Farmer | `farmer@annadata.demo` (Kavita Shinde) |
 | Farmer | `ganesh.patil@annadata.demo` |
 | Farmer | `rajendra.jadhav@annadata.demo` |
-| FPO Agent | `fpo@annadata.demo` |
+| FPO Agent | `fpo@annadata.demo` (Niphad FPO) |
 | Buyer | `buyer@annadata.demo`, `buyer2@annadata.demo`, `buyer3@annadata.demo` |
 | Assayer | `assayer@annadata.demo` |
 | Transporter | `transporter@annadata.demo` |
 | Admin | `admin@annadata.demo` |
 
+The seed also creates a second FPO and a wider farmer/buyer roster (18 farmers, 6 buyers, 2 assayers, 2 transporters, 3 storage facilities across two talukas) to populate the extended 16-lot dataset — see [`backend/scripts/seed.py`](backend/scripts/seed.py) for the full roster. A few are worth knowing about specifically:
+
+| Role | Email | Notable for |
+|---|---|---|
+| FPO Agent | `fpo2@annadata.demo` | Yeola FPO — second collection centre |
+| Buyer | `buyer4@annadata.demo` | Exporter, verified — submits a `PURCHASE_ORDER`-type offer |
+| Buyer | `buyer5@annadata.demo` | Wholesaler, verification **PENDING** |
+| Buyer | `buyer6@annadata.demo` | Retailer, **UNVERIFIED** — demonstrates the "unverified buyers cannot offer" rule |
+
 ## Synthetic demo data disclaimer
 
-**Every farmer, FPO, buyer, assayer, transporter and storage facility in this repository is a synthetic demo record**, created solely to illustrate the AnnData workflow for evaluation. None represent real people, real organizations, or real transactions. Do not treat any name, phone number, or quantity in the seed data as real-world information.
+**Every farmer, FPO, buyer, assayer, transporter and storage facility in this repository is a synthetic demo record**, created solely to illustrate the AnnData workflow for evaluation. None represent real people, real organizations, or real transactions. Do not treat any name, phone number, or quantity in the seed data as real-world information. Villages, talukas, onion varieties, and price bands are drawn from public reference data researched for this pilot (see [`research/`](research/)) to keep the demo realistic, but the specific transactions are entirely fabricated.
 
 ## Known limitations
 
