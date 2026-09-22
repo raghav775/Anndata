@@ -8,8 +8,8 @@ import { useToast } from "../context/ToastContext"
 import { getApiErrorMessage } from "../lib/api"
 import { Button } from "../components/ui/Button"
 
-const WAKE_RETRY_ATTEMPTS = 4
-const WAKE_RETRY_DELAY_MS = 4000
+const WAKE_RETRY_ATTEMPTS = 7
+const WAKE_RETRY_DELAY_MS = 6000
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))

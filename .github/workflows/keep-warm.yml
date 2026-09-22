@@ -1,0 +1,24 @@
+name: Keep backend warm
+
+# Render's free web-service tier spins the instance down after 15 minutes
+# with no traffic; the next request then pays a 30-50s cold-start penalty
+# (see DEPLOYMENT.md). Pinging the health endpoint well inside that window
+# keeps the live demo responsive without paying for a higher Render plan.
+# Public-repo Actions minutes are free and unlimited, so this costs nothing.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 https://annadata-onion-pilot-api.onrender.com/api/health)
+          echo "Health check responded: $code"
+          if [ "$code" != "200" ]; then
+            echo "::warning::Backend health check returned $code instead of 200"
+          fi
