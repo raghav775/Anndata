@@ -140,3 +140,60 @@ def test_farmer_cannot_close_a_lot(client, seed_base):
     headers = auth_headers(client, "farmer@test.demo")
     resp = client.post(f"/api/lots/{lot_id}/close", headers=headers)
     assert resp.status_code == 403
+
+
+def test_farmer_can_create_their_own_lot(client, seed_base):
+    headers = auth_headers(client, "farmer@test.demo")
+    resp = client.post(
+        "/api/lots",
+        headers=headers,
+        json={
+            "commodity_id": seed_base["commodity"].id,
+            "fpo_id": seed_base["fpo"].id,
+            "village_origin": "Niphad",
+            "collection_point": "Niphad Collection Centre",
+            "contributors": [{"farmer_id": seed_base["farmer"].id, "quantity_kg": 300}],
+        },
+    )
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["status"] == "DRAFT"
+    assert body["total_quantity_kg"] == 300
+    assert len(body["contributors"]) == 1
+    assert body["contributors"][0]["farmer_id"] == seed_base["farmer"].id
+
+    # It should also show up in that farmer's own visible lot list.
+    lots = client.get("/api/lots", headers=headers)
+    assert any(lot["id"] == body["id"] for lot in lots.json())
+
+
+def test_farmer_cannot_add_another_farmer_as_contributor(client, seed_base):
+    headers = auth_headers(client, "farmer@test.demo")
+    resp = client.post(
+        "/api/lots",
+        headers=headers,
+        json={
+            "commodity_id": seed_base["commodity"].id,
+            "fpo_id": seed_base["fpo"].id,
+            "village_origin": "Niphad",
+            "collection_point": "Niphad Collection Centre",
+            "contributors": [{"farmer_id": seed_base["farmer2"].id, "quantity_kg": 300}],
+        },
+    )
+    assert resp.status_code == 403
+
+
+def test_farmer_cannot_create_lot_for_a_different_fpo(client, seed_base):
+    headers = auth_headers(client, "farmer@test.demo")
+    resp = client.post(
+        "/api/lots",
+        headers=headers,
+        json={
+            "commodity_id": seed_base["commodity"].id,
+            "fpo_id": seed_base["fpo"].id + 999,
+            "village_origin": "Niphad",
+            "collection_point": "Niphad Collection Centre",
+            "contributors": [{"farmer_id": seed_base["farmer"].id, "quantity_kg": 300}],
+        },
+    )
+    assert resp.status_code == 403

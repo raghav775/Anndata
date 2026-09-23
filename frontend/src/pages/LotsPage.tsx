@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 import { ArrowRight, Package, Plus, X } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "../components/ui/Button"
 import { Card, CardHeader } from "../components/ui/Card"
@@ -9,7 +9,7 @@ import { EmptyState, ErrorState, SkeletonCard } from "../components/ui/States"
 import { useAuth } from "../context/AuthContext"
 import { useI18n } from "../context/I18nContext"
 import { useToast } from "../context/ToastContext"
-import { useFarmers, useFPOs, useInvalidate, useLots } from "../hooks/api"
+import { useFarmers, useFPOs, useInvalidate, useLots, useMyFarmerProfile } from "../hooks/api"
 import { api, getApiErrorMessage } from "../lib/api"
 
 interface ContributorRow {
@@ -20,10 +20,12 @@ interface ContributorRow {
 export function LotsPage() {
   const { user } = useAuth()
   const { t } = useI18n()
+  const isFarmer = user?.role === "FARMER"
   const [showForm, setShowForm] = useState(false)
   const { data: lots, isLoading, isError } = useLots()
   const { data: farmers } = useFarmers()
   const { data: fpos } = useFPOs()
+  const { data: myFarmerProfile } = useMyFarmerProfile(isFarmer)
   const invalidate = useInvalidate()
   const { showToast } = useToast()
 
@@ -32,6 +34,13 @@ export function LotsPage() {
   const [collectionPoint, setCollectionPoint] = useState("Niphad Collection Centre")
   const [variety, setVariety] = useState("Red Onion - Nashik")
   const [contributors, setContributors] = useState<ContributorRow[]>([{ farmer_id: "", quantity_kg: "" }])
+  const [myQuantity, setMyQuantity] = useState("")
+
+  useEffect(() => {
+    if (isFarmer && myFarmerProfile?.village) {
+      setVillage(myFarmerProfile.village)
+    }
+  }, [isFarmer, myFarmerProfile?.village])
 
   const createLot = useMutation({
     mutationFn: async () =>
@@ -39,12 +48,14 @@ export function LotsPage() {
         await api.post("/lots", {
           commodity_id: 1,
           variety,
-          fpo_id: Number(fpoId),
+          fpo_id: isFarmer ? myFarmerProfile?.fpo_id : Number(fpoId),
           village_origin: village,
           collection_point: collectionPoint,
-          contributors: contributors
-            .filter((c) => c.farmer_id && c.quantity_kg)
-            .map((c) => ({ farmer_id: Number(c.farmer_id), quantity_kg: Number(c.quantity_kg) })),
+          contributors: isFarmer
+            ? [{ farmer_id: myFarmerProfile?.id, quantity_kg: Number(myQuantity) }]
+            : contributors
+                .filter((c) => c.farmer_id && c.quantity_kg)
+                .map((c) => ({ farmer_id: Number(c.farmer_id), quantity_kg: Number(c.quantity_kg) })),
         })
       ).data,
     onSuccess: (lot) => {
@@ -52,11 +63,12 @@ export function LotsPage() {
       showToast(t("lots.createdToast", { code: lot.lot_code, qty: lot.total_quantity_kg }), "success")
       setShowForm(false)
       setContributors([{ farmer_id: "", quantity_kg: "" }])
+      setMyQuantity("")
     },
     onError: (err) => showToast(getApiErrorMessage(err), "error"),
   })
 
-  const canCreate = user?.role === "FPO_AGENT" || user?.role === "ADMIN"
+  const canCreate = user?.role === "FPO_AGENT" || user?.role === "ADMIN" || isFarmer
 
   return (
     <div className="animate-fade-in-up space-y-6">
@@ -68,12 +80,61 @@ export function LotsPage() {
         {canCreate && (
           <Button onClick={() => setShowForm((v) => !v)}>
             {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-            {showForm ? t("common.cancel") : t("lots.createButton")}
+            {showForm ? t("common.cancel") : isFarmer ? t("lots.addProduceButton") : t("lots.createButton")}
           </Button>
         )}
       </div>
 
-      {showForm && (
+      {showForm && isFarmer && (
+        <Card>
+          <CardHeader title={t("lots.addProduceFormTitle")} subtitle={t("lots.addProduceFormSubtitle")} />
+          {!myFarmerProfile?.fpo_id ? (
+            <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-sm text-amber-800 ring-1 ring-inset ring-amber-100">
+              {t("lots.noFpoLinked")}
+            </p>
+          ) : (
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault()
+                createLot.mutate()
+              }}
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block text-sm">
+                  <span className="font-medium text-ink-700">{t("lots.variety")}</span>
+                  <input value={variety} onChange={(e) => setVariety(e.target.value)} className="input mt-1.5" />
+                </label>
+                <label className="block text-sm">
+                  <span className="font-medium text-ink-700">{t("lots.quantityKg")} *</span>
+                  <input
+                    required
+                    type="number"
+                    min="0.1"
+                    step="0.1"
+                    value={myQuantity}
+                    onChange={(e) => setMyQuantity(e.target.value)}
+                    className="input mt-1.5"
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="font-medium text-ink-700">{t("lots.villageOrigin")} *</span>
+                  <input required value={village} onChange={(e) => setVillage(e.target.value)} className="input mt-1.5" />
+                </label>
+                <label className="block text-sm">
+                  <span className="font-medium text-ink-700">{t("lots.collectionPoint")} *</span>
+                  <input required value={collectionPoint} onChange={(e) => setCollectionPoint(e.target.value)} className="input mt-1.5" />
+                </label>
+              </div>
+              <Button type="submit" isLoading={createLot.isPending}>
+                {t("lots.submitProduceButton")}
+              </Button>
+            </form>
+          )}
+        </Card>
+      )}
+
+      {showForm && !isFarmer && (
         <Card>
           <CardHeader title={t("lots.formTitle")} subtitle={t("lots.formSubtitle")} />
           <form

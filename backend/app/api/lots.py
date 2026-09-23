@@ -94,9 +94,28 @@ def create_lot(
     payload: LotCreate,
     request: Request,
     db: Session = Depends(get_db),
-    agent: User = Depends(require_roles(UserRole.FPO_AGENT, UserRole.ADMIN)),
+    agent: User = Depends(
+        require_roles(UserRole.FPO_AGENT, UserRole.ADMIN, UserRole.FARMER)
+    ),
 ) -> LotOut:
-    if user_fpo := getattr(agent.fpo_agent_profile, "fpo_id", None):
+    if agent.role == UserRole.FARMER:
+        farmer_profile = agent.farmer_profile
+        if farmer_profile is None:
+            raise ValidationAppError("Your account has no farmer profile")
+        if farmer_profile.fpo_id is None:
+            raise ValidationAppError(
+                "Your profile is not linked to an FPO yet — contact your FPO agent"
+            )
+        if payload.fpo_id != farmer_profile.fpo_id:
+            raise ForbiddenError("You may only create a lot under your own FPO")
+        if (
+            len(payload.contributors) != 1
+            or payload.contributors[0].farmer_id != farmer_profile.id
+        ):
+            raise ForbiddenError(
+                "Farmers may only add themselves as the contributor to their own lot"
+            )
+    elif user_fpo := getattr(agent.fpo_agent_profile, "fpo_id", None):
         if payload.fpo_id != user_fpo and agent.role != UserRole.ADMIN:
             raise ForbiddenError("You may only create lots for your own FPO")
 

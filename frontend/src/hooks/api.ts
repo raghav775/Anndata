@@ -70,6 +70,14 @@ export function useFarmers(fpoId?: number) {
   })
 }
 
+export function useMyFarmerProfile(enabled: boolean) {
+  return useQuery({
+    queryKey: ["farmers", "me"],
+    queryFn: async () => (await api.get<FarmerProfile>("/farmers/me")).data,
+    enabled,
+  })
+}
+
 export function useFPOs() {
   return useQuery({
     queryKey: ["fpos"],

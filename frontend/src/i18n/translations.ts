@@ -377,6 +377,11 @@ export const dict: Record<string, Entry> = {
   "lots.colStatus": { en: "Status", hi: "स्थिति", mr: "स्थिती", gu: "સ્થિતિ" },
   "lots.couldNotLoad": { en: "Could not load lots.", hi: "लॉट लोड नहीं हो सके।", mr: "लॉट लोड होऊ शकले नाहीत.", gu: "લોટ લોડ થઈ શક્યા નહીં." },
   "lots.createdToast": { en: "Lot {code} created ({qty} kg)", hi: "लॉट {code} बनाया गया ({qty} किलो)", mr: "लॉट {code} तयार केला ({qty} किलो)", gu: "લોટ {code} બનાવાયો ({qty} કિલો)" },
+  "lots.addProduceButton": { en: "Add My Produce", hi: "अपनी उपज जोड़ें", mr: "माझे उत्पादन जोडा", gu: "મારું ઉત્પાદન ઉમેરો" },
+  "lots.addProduceFormTitle": { en: "Add your produce", hi: "अपनी उपज जोड़ें", mr: "तुमचे उत्पादन जोडा", gu: "તમારું ઉત્પાદન ઉમેરો" },
+  "lots.addProduceFormSubtitle": { en: "Submit your own harvest as a new lot for your FPO to process", hi: "अपनी FPO द्वारा संसाधित करने हेतु अपनी फसल को नए लॉट के रूप में जमा करें", mr: "तुमच्या FPO कडून प्रक्रिया करण्यासाठी तुमचे पीक नवीन लॉट म्हणून सबमिट करा", gu: "તમારા FPO દ્વારા પ્રક્રિયા કરવા માટે તમારો પાક નવા લોટ તરીકે સબમિટ કરો" },
+  "lots.submitProduceButton": { en: "Submit produce", hi: "उपज जमा करें", mr: "उत्पादन सबमिट करा", gu: "ઉત્પાદન સબમિટ કરો" },
+  "lots.noFpoLinked": { en: "Your profile isn't linked to an FPO yet — contact your FPO agent to get started.", hi: "आपकी प्रोफ़ाइल अभी किसी FPO से जुड़ी नहीं है — शुरू करने के लिए अपने FPO एजेंट से संपर्क करें।", mr: "तुमची प्रोफाइल अद्याप कोणत्याही FPO शी जोडलेली नाही — सुरुवात करण्यासाठी तुमच्या FPO एजंटशी संपर्क साधा.", gu: "તમારી પ્રોફાઇલ હજી કોઈ FPO સાથે જોડાયેલ નથી — શરૂ કરવા માટે તમારા FPO એજન્ટનો સંપર્ક કરો." },
 
   // -------------------------------------------------------- lot detail
   "lotDetail.contributors": { en: "Farmer contributors", hi: "किसान योगदानकर्ता", mr: "शेतकरी योगदानकर्ते", gu: "ખેડૂત યોગદાનકર્તા" },

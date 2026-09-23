@@ -1,24 +1,21 @@
 import { useQuery } from "@tanstack/react-query"
-import { ArrowRight, Layers, MapPin, Wallet } from "lucide-react"
+import { ArrowRight, Layers, MapPin, Plus, Wallet } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
 import { useI18n } from "../../context/I18nContext"
 import { Badge, StatusBadge } from "../../components/ui/Badge"
+import { Button } from "../../components/ui/Button"
 import { Card, CardHeader, StatTile } from "../../components/ui/Card"
 import { EmptyState, ErrorState, SkeletonCard } from "../../components/ui/States"
 import { api } from "../../lib/api"
-import { useSettlementsForFarmer } from "../../hooks/api"
-import type { FarmerProfile, Lot } from "../../types"
+import { useMyFarmerProfile, useSettlementsForFarmer } from "../../hooks/api"
+import type { Lot } from "../../types"
 
 export function FarmerDashboard() {
   const { user } = useAuth()
   const { t } = useI18n()
 
-  const { data: farmerProfile } = useQuery({
-    queryKey: ["farmer-profile", user?.id],
-    queryFn: async () => (await api.get<FarmerProfile>("/farmers/me")).data,
-    enabled: user?.role === "FARMER",
-  })
+  const { data: farmerProfile } = useMyFarmerProfile(user?.role === "FARMER")
 
   const {
     data: lots,
@@ -56,7 +53,18 @@ export function FarmerDashboard() {
       </div>
 
       <Card>
-        <CardHeader title={t("farmerDash.yourLots")} subtitle={t("farmerDash.yourLotsSubtitle")} />
+        <CardHeader
+          title={t("farmerDash.yourLots")}
+          subtitle={t("farmerDash.yourLotsSubtitle")}
+          action={
+            <Link to="/app/lots">
+              <Button size="sm">
+                <Plus className="h-4 w-4" />
+                {t("lots.addProduceButton")}
+              </Button>
+            </Link>
+          }
+        />
         {lotsLoading && <SkeletonCard />}
         {lotsError && <ErrorState message={t("farmerDash.couldNotLoad")} />}
         {lots && lots.length === 0 && (
