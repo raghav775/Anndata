@@ -17,7 +17,13 @@ jobs:
     steps:
       - name: Ping health endpoint
         run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 https://annadata-onion-pilot-api.onrender.com/api/health)
+          # GitHub Actions runs steps under `bash -e`, so a plain
+          # `code=$(curl ...)` aborts the whole step the moment curl itself
+          # returns non-zero (e.g. exit 28 on a --max-time timeout) - never
+          # reaching the warning below. The `|| echo "000"` fallback keeps
+          # the command substitution itself always successful so a slow
+          # cold start is reported, not a hard job failure every time.
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 https://annadata-onion-pilot-api.onrender.com/api/health || echo "000")
           echo "Health check responded: $code"
           if [ "$code" != "200" ]; then
             echo "::warning::Backend health check returned $code instead of 200"

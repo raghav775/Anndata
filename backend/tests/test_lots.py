@@ -177,7 +177,9 @@ def test_farmer_cannot_add_another_farmer_as_contributor(client, seed_base):
             "fpo_id": seed_base["fpo"].id,
             "village_origin": "Niphad",
             "collection_point": "Niphad Collection Centre",
-            "contributors": [{"farmer_id": seed_base["farmer2"].id, "quantity_kg": 300}],
+            "contributors": [
+                {"farmer_id": seed_base["farmer2"].id, "quantity_kg": 300}
+            ],
         },
     )
     assert resp.status_code == 403
