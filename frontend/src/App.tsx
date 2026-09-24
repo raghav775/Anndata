@@ -2,6 +2,8 @@ import { useEffect } from "react"
 import { Route, Routes } from "react-router-dom"
 import { AppShell } from "./components/layout/AppShell"
 import { ProtectedRoute } from "./components/layout/ProtectedRoute"
+import { useI18n } from "./context/I18nContext"
+import { useToast } from "./context/ToastContext"
 import { api } from "./lib/api"
 import { AnalyticsPage } from "./pages/AnalyticsPage"
 import { AuditLogPage } from "./pages/AuditLogPage"
@@ -24,12 +26,25 @@ import { StoragePage } from "./pages/StoragePage"
 import { UsersPage } from "./pages/UsersPage"
 
 function App() {
+  const { t } = useI18n()
+  const { showToast } = useToast()
+
   useEffect(() => {
     // Best-effort warm-up: free-tier hosts (e.g. Render) spin down when
     // idle, so ping the backend as early as page load rather than waiting
     // for the user's first real request (typically login) to trigger it.
     api.get("/health").catch(() => {})
   }, [])
+
+  useEffect(() => {
+    // lib/api.ts retries any GET (and login) transparently through a cold
+    // start; this just surfaces that it's happening, on whichever page the
+    // user is on, instead of leaving them looking at a silently-hanging
+    // screen for up to ~40s with no explanation.
+    const onWaking = () => showToast(t("auth.wakingServer"), "info")
+    window.addEventListener("annadata:backend-waking", onWaking)
+    return () => window.removeEventListener("annadata:backend-waking", onWaking)
+  }, [t, showToast])
 
   return (
     <Routes>

@@ -15,7 +15,7 @@ AnnData helps small onion farmers aggregate produce through their FPO (Farmer Pr
 
 **[annadata-onion-pilot.vercel.app](https://annadata-onion-pilot.vercel.app)** · API: [annadata-onion-pilot-api.onrender.com](https://annadata-onion-pilot-api.onrender.com/api/health)
 
-The backend is a free-tier instance that spins down after 15 minutes idle and reseeds fresh demo data on its next request — the first load after a quiet period takes a few extra seconds. See [Demo accounts](#demo-accounts) below, or [`DEPLOYMENT.md`](DEPLOYMENT.md) for how this is deployed.
+The backend is a free-tier instance that spins down after 15 minutes idle and reseeds fresh demo data on its next request. The frontend handles that transparently — it retries automatically through a cold start with a "waking up" notice, rather than showing an error — so no action is needed if a page seems to hang briefly on first load. See [Demo accounts](#demo-accounts) below, or [`DEPLOYMENT.md`](DEPLOYMENT.md) for how this is deployed and handled.
 
 ---
 

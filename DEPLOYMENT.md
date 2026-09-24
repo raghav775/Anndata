@@ -5,7 +5,19 @@
 - **Frontend:** https://annadata-onion-pilot.vercel.app (Vercel, static build, free tier)
 - **Backend API:** https://annadata-onion-pilot-api.onrender.com (Render, free web service)
 
-Both redeploy automatically on every push to `main` (Vercel via its GitHub integration; Render via the `render.yaml` Blueprint below). The backend's free-tier instance spins down after 15 minutes of inactivity and reseeds fresh demo data on its next cold start (`scripts/seed.py` runs before `uvicorn` on every boot) — so the first request after a quiet period takes a few extra seconds, and any demo actions from a previous visitor are gone, by design. See [Demo accounts](README.md#demo-accounts) in the README for logins.
+Both redeploy automatically on every push to `main` (Vercel via its GitHub integration; Render via the `render.yaml` Blueprint below). The backend's free-tier instance spins down after 15 minutes of inactivity and reseeds fresh demo data on its next cold start (`scripts/seed.py` runs before `uvicorn` on every boot) — so any demo actions from a previous visitor are gone, by design. See [Demo accounts](README.md#demo-accounts) in the README for logins.
+
+### Cold starts are handled client-side, not just "avoided"
+
+A `.github/workflows/keep-warm.yml` scheduled ping exists and helps some, but **GitHub's `schedule` trigger is not reliable enough to depend on** — in practice it was observed firing hours apart instead of every 10 minutes, not the few-minutes-late GitHub's own docs warn about. Treat it as a minor optimization, not the fix.
+
+The actual fix is that the frontend handles a cold backend as a normal, expected condition rather than an error state:
+
+- `frontend/src/lib/api.ts`'s axios response interceptor retries **every** GET request (and login) transparently through connection-level failures and Cloudflare gateway-timeout statuses (502/503/504/522/523/524) — up to 8 attempts, 5s apart — before giving up. A global toast ("waking up from idle…") surfaces this on whichever page the user is on; no page has to implement its own retry loop.
+- `AuthContext.loadCurrentUser` only clears stored tokens on a genuine `401` (proven-invalid session). Earlier code cleared them on *any* failure of `GET /auth/me`, which meant a page reload that happened to land during a cold start silently logged the user out even though their token was perfectly valid — that was the actual cause of "login sometimes works, sometimes doesn't." Fixed; covered by `frontend/tests/context/AuthContext.test.tsx`.
+- Mutating requests (POST/PUT/PATCH/DELETE, other than login) are deliberately **not** auto-retried — if a request timed out after the server had already started processing it, blindly resubmitting could duplicate the action. Those show a clear "server may still be waking up, try again" message instead, so the user's own click is the one that runs.
+
+Verified against real cold-start-shaped failures (not just a lucky live test) in `e2e/tests/cold-start-resilience.spec.ts`, which uses Playwright network interception to deterministically simulate the failure pattern in a real browser.
 
 ### Setting this up from scratch
 
